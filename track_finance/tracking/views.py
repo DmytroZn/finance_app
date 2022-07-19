@@ -5,6 +5,7 @@ from rest_framework import status
 
 from tracking.models import Category, Spending
 from tracking.serializers import CategorySerializer, SpendingSerializer
+from tracking.utils import ObjectGetting
 # Create your views here.
 
 
@@ -28,38 +29,36 @@ class CategoryList(APIView):
 
 class CategoryDetail(APIView):
     def get(self, request, pk):
-        try:
-            category = Category.objects.get(pk=pk)
-        except Category.DoesNotExist:
-            return Response({"msg": "Not_Content"}, status=status.HTTP_204_NO_CONTENT)
+        if not (category := ObjectGetting(Category, pk).get_model())[0]:
+            return category[1]
+        category = category[1]
         serializer = CategorySerializer(category)
         return Response(serializer.data)
 
     def put(self, request, pk):
         request.data["name_category"] = request.data["name_category"].strip()
 
-        try:
-            category = Category.objects.get(pk=pk)
-        except Category.DoesNotExist:
-            return Response({"msg": "Not_Content"}, status=status.HTTP_204_NO_CONTENT)
+        if not (category := ObjectGetting(Category, pk).get_model())[0]:
+            return category[1]
+        category = category[1]
 
         serializer = CategorySerializer(category, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"msg": "Updated"}, status=status.HTTP_201_CREATED)
+            return Response({"msg": "Updated"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
-        try:
-            category = Category.objects.get(pk=pk)
-        except Category.DoesNotExist:
-            return Response({"msg": "Not_Content"}, status=status.HTTP_204_NO_CONTENT)
+        if not (category := ObjectGetting(Category, pk).get_model())[0]:
+            return category[1]
+        category = category[1]
+
         if Spending.objects.filter(fk_category=pk):
             category.is_active = False
             category.save()
         else:
             category.delete()
-        return Response({"msg": "Deleted"}, status=status.HTTP_201_CREATED)
+        return Response({"msg": "Deleted"}, status=status.HTTP_200_OK)
 
 
 class SpendingList(APIView):
@@ -78,25 +77,26 @@ class SpendingList(APIView):
 
 class SpendingDetail(APIView):
     def get(self, request, pk):
-        try:
-            category = Spending.objects.get(pk=pk)
-        except Spending.DoesNotExist:
-            return Response({"msg": "Not_Content"}, status=status.HTTP_204_NO_CONTENT)
-        serializer = SpendingSerializer(category)
+        if not (spending := ObjectGetting(Spending, pk).get_model())[0]:
+            return spending[1]
+        spending = spending[1]
+
+        serializer = SpendingSerializer(spending)
         return Response(serializer.data)
 
     def put(self, request, pk):
-        spending = Spending.objects.get(pk=pk)
+        if not (spending := ObjectGetting(Spending, pk).get_model())[0]:
+            return spending[1]
+        spending = spending[1]
+
         serializer = SpendingSerializer(spending, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"msg": "Updated"}, status=status.HTTP_201_CREATED)
+            return Response({"msg": "Updated"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk, format=None):
-        try:
-            spending = Spending.objects.get(pk=pk)
-        except Spending.DoesNotExist:
-            return Response({"msg": "Not_Content"}, status=status.HTTP_204_NO_CONTENT)
-        spending.delete()
-        return Response({"msg": "Deleted"}, status=status.HTTP_201_CREATED)
+        if not (spending := ObjectGetting(Spending, pk).get_model())[0]:
+            return spending[1]
+        spending[1].delete()
+        return Response({"msg": "Deleted"}, status=status.HTTP_200_OK)
