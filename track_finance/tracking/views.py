@@ -62,7 +62,7 @@ class CategoryDetail(APIView):
 
 
 class SpendingList(APIView):
-    def get(self, request, format=None):
+    def get(self, request):
         spending = Spending.objects.all()
         serializer = SpendingSerializer(spending, many=True)
         return Response(serializer.data)
@@ -95,7 +95,7 @@ class SpendingDetail(APIView):
             return Response({"msg": "Updated"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk, format=None):
+    def delete(self, request, pk):
         if not (spending := ObjectGetting(Spending, pk).get_model())[0]:
             return spending[1]
         spending[1].delete()
