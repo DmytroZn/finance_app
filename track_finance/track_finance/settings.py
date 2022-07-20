@@ -80,7 +80,7 @@ WSGI_APPLICATION = 'track_finance.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / 'db3.sqlite3',
     }
 }
 
@@ -102,6 +102,12 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+AUTH_USER_MODEL = "tracking.User"
+
+DJOSER = {
+    "USER_CREATE_PASSWORD_RETYPE": True
+}
 
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [

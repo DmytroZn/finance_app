@@ -1,4 +1,7 @@
 from decimal import Decimal
+
+# from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.models import PermissionsMixin, UserManager, AbstractBaseUser
 from django.db import models
 from django.core.validators import MinValueValidator
 
@@ -31,5 +34,15 @@ class Spending(models.Model):
         db_table = "Spending".upper()
         ordering = ("-date_time_created",)
 
+
+class User(AbstractBaseUser, PermissionsMixin):
+    username = models.CharField(max_length=150, unique=True)
+    main_ua = models.CharField(max_length=30)
+    email = models.EmailField()
+    is_staff = models.BooleanField()
+    objects = UserManager()
+
+
+    USERNAME_FIELD = "username"
 
 
