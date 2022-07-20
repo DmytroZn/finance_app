@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from rest_framework.authentication import BasicAuthentication, SessionAuthentication, TokenAuthentication
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -10,8 +12,12 @@ from tracking.utils import ObjectGetting
 
 
 class CategoryList(APIView):
+    # authentication_classes = [SessionAuthentication, BasicAuthentication]
+    authentication_classes = [TokenAuthentication]
+    # permission_classes = [AllowAny]
+
     def get(self, request):
-        categories = Category.objects.all()
+        categories = Category.objects.filter(is_active=True)
         serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data)
 
@@ -28,6 +34,8 @@ class CategoryList(APIView):
 
 
 class CategoryDetail(APIView):
+    authentication_classes = [TokenAuthentication]
+
     def get(self, request, pk):
         if not (category := ObjectGetting(Category, pk).get_model())[0]:
             return category[1]
@@ -62,6 +70,8 @@ class CategoryDetail(APIView):
 
 
 class SpendingList(APIView):
+    authentication_classes = [TokenAuthentication]
+
     def get(self, request):
         spending = Spending.objects.all()
         serializer = SpendingSerializer(spending, many=True)
@@ -76,6 +86,8 @@ class SpendingList(APIView):
 
 
 class SpendingDetail(APIView):
+    authentication_classes = [TokenAuthentication]
+
     def get(self, request, pk):
         if not (spending := ObjectGetting(Spending, pk).get_model())[0]:
             return spending[1]
