@@ -7,7 +7,7 @@ from rest_framework import status
 
 from tracking.models import Category, Spending
 from tracking.serializers import CategorySerializer, SpendingSerializer
-from tracking.utils import ObjectGetting
+from tracking.utils import ObjectGetting, adding_user_id
 # Create your views here.
 
 
@@ -17,15 +17,17 @@ class CategoryList(APIView):
     # permission_classes = [AllowAny]
 
     def get(self, request):
-        categories = Category.objects.filter(is_active=True)
+        categories = Category.objects.filter(is_active=True, fk_user=request.user.id)
         serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data)
 
+    @adding_user_id
     def post(self, request):
         request.data["name_category"] = request.data["name_category"].strip()
         serializer = CategorySerializer(data=request.data)
         if serializer.is_valid():
-            if category := Category.objects.filter(name_category=request.data["name_category"]):
+            if category := Category.objects.filter(name_category=request.data["name_category"],
+                                                   fk_user=request.data["fk_user"]):
                 category.update(is_active=True)
             else:
                 serializer.save()
@@ -37,7 +39,7 @@ class CategoryDetail(APIView):
     authentication_classes = [TokenAuthentication]
 
     def get(self, request, pk):
-        if not (category := ObjectGetting(Category, pk).get_model())[0]:
+        if not (category := ObjectGetting(Category, pk=pk, fk_user=request.user.id).get_model())[0]:
             return category[1]
         category = category[1]
         serializer = CategorySerializer(category)
@@ -46,7 +48,7 @@ class CategoryDetail(APIView):
     def put(self, request, pk):
         request.data["name_category"] = request.data["name_category"].strip()
 
-        if not (category := ObjectGetting(Category, pk).get_model())[0]:
+        if not (category := ObjectGetting(Category, pk=pk, fk_user=request.user.id).get_model())[0]:
             return category[1]
         category = category[1]
 
@@ -57,11 +59,12 @@ class CategoryDetail(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
-        if not (category := ObjectGetting(Category, pk).get_model())[0]:
+        fk_user = request.user.id
+        if not (category := ObjectGetting(Category, pk=pk, fk_user=fk_user).get_model())[0]:
             return category[1]
         category = category[1]
 
-        if Spending.objects.filter(fk_category=pk):
+        if Spending.objects.filter(fk_category=pk, fk_user=fk_user):
             category.is_active = False
             category.save()
         else:
@@ -73,10 +76,11 @@ class SpendingList(APIView):
     authentication_classes = [TokenAuthentication]
 
     def get(self, request):
-        spending = Spending.objects.all()
+        spending = Spending.objects.filter(fk_user=request.user.id)
         serializer = SpendingSerializer(spending, many=True)
         return Response(serializer.data)
 
+    @adding_user_id
     def post(self, request):
         serializer = SpendingSerializer(data=request.data)
         if serializer.is_valid():
@@ -89,15 +93,16 @@ class SpendingDetail(APIView):
     authentication_classes = [TokenAuthentication]
 
     def get(self, request, pk):
-        if not (spending := ObjectGetting(Spending, pk).get_model())[0]:
+        if not (spending := ObjectGetting(Spending, pk=pk, fk_user=request.user.id).get_model())[0]:
             return spending[1]
         spending = spending[1]
 
         serializer = SpendingSerializer(spending)
         return Response(serializer.data)
 
+    @adding_user_id
     def put(self, request, pk):
-        if not (spending := ObjectGetting(Spending, pk).get_model())[0]:
+        if not (spending := ObjectGetting(Spending, pk=pk, fk_user=request.user.id).get_model())[0]:
             return spending[1]
         spending = spending[1]
 
@@ -108,7 +113,7 @@ class SpendingDetail(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
-        if not (spending := ObjectGetting(Spending, pk).get_model())[0]:
+        if not (spending := ObjectGetting(Spending, pk=pk, fk_user=request.user.id).get_model())[0]:
             return spending[1]
         spending[1].delete()
         return Response({"msg": "Deleted"}, status=status.HTTP_200_OK)

@@ -6,7 +6,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ("id", "name_category", "is_active")
+        fields = ("id", "name_category", "is_active", "fk_user")
 
 
 class SpendingSerializer(serializers.ModelSerializer):
@@ -17,4 +17,4 @@ class SpendingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Spending
-        fields = ("id", "amount", "comment", "date_time_created", "name_category", "fk_category")
+        fields = ("id", "amount", "comment", "date_time_created", "name_category", "fk_category", "fk_user")
