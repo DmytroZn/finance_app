@@ -31,7 +31,7 @@ class CategoryList(APIView):
                 category.update(is_active=True)
             else:
                 serializer.save()
-            return Response({"msg": "Created"}, status=status.HTTP_201_CREATED)
+            return Response({"detail": "Created"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -55,7 +55,7 @@ class CategoryDetail(APIView):
         serializer = CategorySerializer(category, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"msg": "Updated"}, status=status.HTTP_200_OK)
+            return Response({"detail": "Updated"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
@@ -69,7 +69,7 @@ class CategoryDetail(APIView):
             category.save()
         else:
             category.delete()
-        return Response({"msg": "Deleted"}, status=status.HTTP_200_OK)
+        return Response({"detail": "Deleted"}, status=status.HTTP_200_OK)
 
 
 class SpendingList(APIView):
@@ -85,7 +85,7 @@ class SpendingList(APIView):
         serializer = SpendingSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"msg": "Created"}, status=status.HTTP_201_CREATED)
+            return Response({"detail": "Created"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -109,11 +109,11 @@ class SpendingDetail(APIView):
         serializer = SpendingSerializer(spending, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"msg": "Updated"}, status=status.HTTP_200_OK)
+            return Response({"detail": "Updated"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
         if not (spending := ObjectGetting(Spending, pk=pk, fk_user=request.user.id).get_model())[0]:
             return spending[1]
         spending[1].delete()
-        return Response({"msg": "Deleted"}, status=status.HTTP_200_OK)
+        return Response({"detail": "Deleted"}, status=status.HTTP_200_OK)
