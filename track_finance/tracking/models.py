@@ -36,8 +36,9 @@ class Spending(models.Model):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(max_length=150, unique=True)
-    main_ua = models.CharField(max_length=30)
+    username = models.CharField(max_length=20, unique=True)
+    first_name = models.CharField(max_length=20, unique=True)
+    last_name = models.CharField(max_length=20, unique=True)
     email = models.EmailField()
     is_staff = models.BooleanField()
     objects = UserManager()
